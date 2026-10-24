@@ -211,7 +211,11 @@ impl FrlConfig {
 pub struct UpdateFlags {
     /// Bit 0: general status has changed.
     pub status_update: bool,
-    /// Bit 1: CED counters have been updated; re-read the `ERR_DET` registers.
+    /// Bit 1 (`CED_Update`): set by the sink about the character error counters, and kept
+    /// until the source clears it. A hint at most: it has been seen set with every count
+    /// zero, and a sink may never set it, so a link health monitor reads the counters
+    /// regularly (culvert's `read_ced`) rather than waiting for it. Training does not use
+    /// it.
     pub ced_update: bool,
     /// Bit 2: read request test, owned by the sink. The source does not clear it, so
     /// [`ClearableUpdateFlags`] has no field for it.
@@ -222,7 +226,8 @@ pub struct UpdateFlags {
     pub frl_start: bool,
     /// Bit 5: the per-lane link training pattern requests have changed.
     pub flt_update: bool,
-    /// Bit 6: the Reed-Solomon correction count has been updated.
+    /// Bit 6 (`RSED_Update`): as `ced_update`, for the Reed-Solomon correction count: kept
+    /// until the source clears it, and a hint at most. Training does not use it.
     pub rsed_update: bool,
 }
 
@@ -273,7 +278,8 @@ impl UpdateFlags {
 pub struct ClearableUpdateFlags {
     /// Bit 0: general status has changed.
     pub status_update: bool,
-    /// Bit 1: CED counters have been updated.
+    /// Bit 1: `CED_Update`, the character error counters' flag (see
+    /// [`UpdateFlags::ced_update`]).
     pub ced_update: bool,
     /// Bit 3: the sink has written `Source_Test_Configuration` (0x35).
     pub source_test_update: bool,
@@ -281,7 +287,8 @@ pub struct ClearableUpdateFlags {
     pub frl_start: bool,
     /// Bit 5: the per-lane link training pattern requests have changed.
     pub flt_update: bool,
-    /// Bit 6: the Reed-Solomon correction count has been updated.
+    /// Bit 6: `RSED_Update`, the Reed-Solomon correction count's flag (see
+    /// [`UpdateFlags::rsed_update`]).
     pub rsed_update: bool,
 }
 

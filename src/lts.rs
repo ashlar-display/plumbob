@@ -9,7 +9,7 @@
 //! completes immediately, so `run` never waits. `plumbob-async` drives the same `run` over
 //! async I/O. Most users want `FrlTrainer`; this module is for writing such a driver.
 
-use display_types::cea861::hdmi_forum::{FrlLanes, HdmiForumFrl};
+use display_types::cea861::hdmi_forum::HdmiForumFrl;
 use hdmi_hal::phy::{
     EqParams, FrlOutput, LaneEqParams, LanePatterns, LtpPattern, TxFfeLevel, TxFfeRestrictions,
 };
@@ -137,13 +137,6 @@ fn invalid_rate(rates: &[HdmiForumFrl]) -> Option<(usize, &HdmiForumFrl)> {
     })
 }
 
-/// The number of lanes in use at `rate`, as display-types defines it for every rate.
-/// `run` rejects `NotSupported` before training (`invalid_rate`), so every rate here has
-/// FRL lanes; the 4 for `None` is never used.
-fn lane_count(rate: HdmiForumFrl) -> usize {
-    rate.lanes().map_or(4, FrlLanes::count)
-}
-
 /// The equalization settings for one lane at the given TxFFE level.
 fn lane_eq(level: u8) -> LaneEqParams {
     let mut params = LaneEqParams::default();
@@ -166,7 +159,8 @@ impl Lanes {
     /// Every lane with no pattern and TxFFE level 0.
     pub(crate) fn new(rate: HdmiForumFrl) -> Self {
         Self {
-            count: lane_count(rate),
+            // display-types answers for every rate, so there is no fallback to get wrong.
+            count: rate.lanes().count(),
             patterns: [None; 4],
             levels: [0; 4],
         }

@@ -971,5 +971,5 @@ How a caller keeps a call shorter than the worst case:
 - `ScdcClient` has no method for the CED counters: they are diagnostics, which training
   never reads, and a method there would make every implementation carry one. A link
   health monitor reads them from the SCDC implementation (culvert's `read_ced`), or
-  through a trait of its own in the integration layer. Until 0.4, `ScdcClient` had a
+  through a trait of its own in the integration layer. Through 0.3, `ScdcClient` had a
   `read_ced`, with `CedCount` and `CedCounters` to return.
