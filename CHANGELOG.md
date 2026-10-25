@@ -43,6 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   futures from hdmi-hal-async's `SendHdmiPhy` and plumbob-async's `SendScdcClient`. The
   `TrainingIo` comment no longer says the state machine targets single-threaded executors
   only.
+- **Moved to the `ashlar-display` organization** — the repository is now
+  `ashlar-display/plumbob` (the old URLs redirect), and `repository` points there.
+  Releases are attested and published from the new repository; 0.1.3 to 0.3.1, attested
+  before the move, verify with `--owner DracoWhitefire --signer-repo DracoWhitefire/plumbob`
+  (see "Verifying releases" in the README). The code of conduct is now the organization's,
+  shared by every Ashlar repository; the repository's own copy is removed.
 
 ## [0.3.1] - 2026-10-17
 
