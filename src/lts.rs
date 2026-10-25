@@ -25,12 +25,14 @@ use crate::warning::Trained;
 
 /// The SCDC and PHY operations the link training state machine performs.
 ///
-/// The SCDC methods correspond to [`ScdcClient`](crate::ScdcClient)'s (without
-/// `read_ced`, which training does not use) and the PHY methods to `HdmiPhy`'s; see those
+/// The SCDC methods correspond to [`ScdcClient`](crate::ScdcClient)'s and the PHY methods
+/// to `HdmiPhy`'s; see those
 /// traits for what each one does and what implementations must guarantee.
-// `async fn` in a public trait does not promise `Send` futures. That is intended: the
-// state machine targets single-threaded executors and the sync driver, as in
-// `hdmi-hal-async`.
+// `async fn` in a public trait does not promise `Send` futures, as in `hdmi-hal-async`'s
+// plain traits. `run`'s future is `Send` whenever the implementation's futures and errors
+// are (tested in `training::tests`); code generic over the I/O gets `Send` futures from the
+// leaf traits' `Send` twins (`SendHdmiPhy`, plumbob-async's `SendScdcClient`), so this
+// trait needs none.
 #[allow(async_fn_in_trait)]
 pub trait TrainingIo {
     /// Error type of the SCDC operations.
@@ -135,14 +137,6 @@ fn invalid_rate(rates: &[HdmiForumFrl]) -> Option<(usize, &HdmiForumFrl)> {
     })
 }
 
-/// The number of lanes in use at `rate`: 3 for the 3-lane rates, 4 otherwise.
-fn lane_count(rate: HdmiForumFrl) -> usize {
-    match rate {
-        HdmiForumFrl::Rate3Gbps3Lanes | HdmiForumFrl::Rate6Gbps3Lanes => 3,
-        _ => 4,
-    }
-}
-
 /// The equalization settings for one lane at the given TxFFE level.
 fn lane_eq(level: u8) -> LaneEqParams {
     let mut params = LaneEqParams::default();
@@ -165,7 +159,8 @@ impl Lanes {
     /// Every lane with no pattern and TxFFE level 0.
     pub(crate) fn new(rate: HdmiForumFrl) -> Self {
         Self {
-            count: lane_count(rate),
+            // display-types answers for every rate, so there is no fallback to get wrong.
+            count: rate.lanes().count(),
             patterns: [None; 4],
             levels: [0; 4],
         }

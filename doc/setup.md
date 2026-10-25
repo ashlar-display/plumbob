@@ -5,7 +5,7 @@
 ## Clone and build
 
 ```sh
-git clone https://github.com/DracoWhitefire/plumbob.git
+git clone https://github.com/ashlar-display/plumbob.git
 cd plumbob
 cargo build
 ```

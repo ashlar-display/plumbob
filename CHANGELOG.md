@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-25
+
+### Breaking changes
+
+- **`ScdcClient::read_ced` is removed, with `CedCount` and `CedCounters`.** Training never
+  read the CED counters; a diagnostics method on the link training trait only made every
+  implementation carry one. Implementations delete their `read_ced`. To read the counters,
+  use the SCDC implementation directly (culvert's `read_ced`), or a trait of your own in
+  the integration layer.
+- **Requires hdmi-hal 0.6.** The PHY interface re-exported from hdmi-hal (`HdmiPhy`,
+  `EqParams`, `FrlOutput`, `LaneEqParams`, `LanePatterns`, `LtpPattern`, `TxFfeLevel`,
+  `TxFfeRestrictions`) is now hdmi-hal 0.6's: a PHY passed to `FrlTrainer` implements
+  hdmi-hal 0.6's `HdmiPhy`, and one implementing 0.5's no longer fits. Move hdmi-hal to
+  0.6 alongside this crate; `HdmiPhy` itself is unchanged. `HdmiForumFrl` is
+  display-types' and is unaffected.
+
+### Changed
+
+- **The lane count of an FRL rate comes from display-types** (`HdmiForumFrl::lanes()`,
+  display-types 0.4.3), which answers for every rate, instead of plumbob's own mapping
+  with a catch-all for four lanes. No behaviour change.
+- **`UpdateFlags::ced_update` and `rsed_update` are documented as what they are seen to
+  be:** set by the sink and kept until the source clears them, a hint at most (`CED_Update`
+  has been seen set with every count zero). They no longer say the counters "have been
+  updated".
+
+- **Part of Ashlar** — the README now opens with a block naming the
+  [Ashlar](https://ashlar-display.org) stack and linking the other crates in it. Keywords
+  are aligned across the stack, with `ashlar` and `hdmi` on every crate; `ashlar` is added,
+  `embedded` is dropped in favour of more specific keywords. Categories gain
+  `no-std::no-alloc`. The crate's `homepage` is now the Ashlar website.
+
+- **The documentation describes the `Send` futures as they are since 0.3.1.**
+  architecture.md no longer calls the `Send` twins deferred: `run`'s future is `Send` over
+  a concrete I/O whose futures and errors are, and code generic over the I/O gets `Send`
+  futures from hdmi-hal-async's `SendHdmiPhy` and plumbob-async's `SendScdcClient`. The
+  `TrainingIo` comment no longer says the state machine targets single-threaded executors
+  only.
+- **Moved to the `ashlar-display` organization** — the repository is now
+  `ashlar-display/plumbob` (the old URLs redirect), and `repository` points there.
+  Releases are attested and published from the new repository; 0.1.3 to 0.3.1, attested
+  before the move, verify with `--owner DracoWhitefire --signer-repo DracoWhitefire/plumbob`
+  (see "Verifying releases" in the README). The code of conduct is now the organization's,
+  shared by every Ashlar repository; the repository's own copy is removed.
+
 ## [0.3.1] - 2026-10-17
 
 ### Fixed

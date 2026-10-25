@@ -1,12 +1,24 @@
 # plumbob
 
-[![CI](https://github.com/DracoWhitefire/plumbob/actions/workflows/ci.yml/badge.svg)](https://github.com/DracoWhitefire/plumbob/actions/workflows/ci.yml)
+[![CI](https://github.com/ashlar-display/plumbob/actions/workflows/ci.yml/badge.svg)](https://github.com/ashlar-display/plumbob/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/plumbob.svg)](https://crates.io/crates/plumbob)
 [![docs.rs](https://docs.rs/plumbob/badge.svg)](https://docs.rs/plumbob)
 [![License: MPL-2.0](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 [![Rust 1.85+](https://img.shields.io/badge/rustc-1.85+-orange.svg)](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html)
 [![SLSA Level 2](https://slsa.dev/images/gh-badge-level2.svg)](https://slsa.dev)
 [![trusted publishing only](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcrates.io%2Fapi%2Fv1%2Fcrates%2Fplumbob&query=%24.crate.trustpub_only&label=trusted%20publishing%20only)](#verifying-releases)
+
+> **Part of [Ashlar](https://ashlar-display.org)** — a display connection stack in Rust,
+> HDMI 2.1 first: from EDID parsing through mode negotiation to FRL link training.
+>
+> [display-types](https://github.com/DracoWhitefire/display-types) ·
+> [piaf](https://github.com/DracoWhitefire/piaf) ·
+> [concordance](https://github.com/DracoWhitefire/concordance) ·
+> [cartouche](https://github.com/DracoWhitefire/cartouche) ·
+> [culvert](https://github.com/DracoWhitefire/culvert) ·
+> **plumbob** ·
+> [hdmi-hal](https://github.com/DracoWhitefire/hdmi-hal) ·
+> [hdmi-hal-i2c-dev](https://github.com/DracoWhitefire/hdmi-hal-i2c-dev)
 
 FRL link training state machine for HDMI 2.1.
 
@@ -30,8 +42,7 @@ Implement `ScdcClient` against your SCDC transport, one method per register oper
 
 ```rust
 use plumbob::{
-    CedCounters, ClearableUpdateFlags, FrlConfig, LtpRequests, ScdcClient, SourceTestConfig,
-    UpdateFlags,
+    ClearableUpdateFlags, FrlConfig, LtpRequests, ScdcClient, SourceTestConfig, UpdateFlags,
 };
 
 struct MyScdcClient { /* I²C / DDC transport */ }
@@ -53,8 +64,6 @@ impl ScdcClient for MyScdcClient {
     fn write_config_0_defaults(&mut self) -> Result<(), MyError> { todo!() }
     // Config_1: FRL rate and FFE levels.
     fn write_frl_config(&mut self, config: FrlConfig) -> Result<(), MyError> { todo!() }
-    // ERR_DET counters, for diagnostics.
-    fn read_ced(&mut self) -> Result<CedCounters, MyError> { todo!() }
 }
 ```
 
@@ -271,7 +280,7 @@ machine without an allocator.
 
 **Bare `no_std` (no features)** — the complete training state machine is available.
 `FrlTrainer`, `TrainingConfig`, `TrainingOutcome`, `TrainingError`, and all owned protocol
-types (`LtpReq`, `LtpRequests`, `FfeLevels`, `UpdateFlags`, `CedCounters`, …) are
+types (`LtpReq`, `LtpRequests`, `FfeLevels`, `UpdateFlags`, …) are
 stack-allocated. No heap use anywhere in the training loop. This tier covers bare-metal
 and firmware targets.
 
@@ -344,11 +353,19 @@ Releases are built on GitHub Actions and attested with
 [GitHub CLI](https://cli.github.com/) and run:
 
 ```sh
-gh attestation verify plumbob-X.Y.Z.crate --repo DracoWhitefire/plumbob
+gh attestation verify plumbob-X.Y.Z.crate --repo ashlar-display/plumbob
+```
+
+Releases from before the repository moved to the `ashlar-display` organization (0.1.3 to
+0.3.1) were attested under its previous owner, and verify against it:
+
+```sh
+gh attestation verify plumbob-X.Y.Z.crate --owner DracoWhitefire \
+  --signer-repo DracoWhitefire/plumbob
 ```
 
 The attested `.crate` is attached to each
-[GitHub release](https://github.com/DracoWhitefire/plumbob/releases).
+[GitHub release](https://github.com/ashlar-display/plumbob/releases).
 
 Releases from 0.2.0 are uploaded through crates.io
 [trusted publishing](https://rust-lang.github.io/rfcs/3691-trusted-publishing-cratesio.html): the publish
