@@ -10,6 +10,7 @@ repository = "https://github.com/ashlar-display/plumbob"
 homepage = "https://ashlar-display.org"
 keywords = ["ashlar", "hdmi", "no-std", "frl", "link-training"]
 categories = ["hardware-support", "embedded", "no-std", "no-std::no-alloc"]
+include = ["src/**", "doc/**", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [features]
 alloc = []
@@ -18,6 +19,13 @@ std = ["alloc"]
 [dependencies]
 hdmi-hal = { version = "0.6", default-features = false }
 display-types = { version = ">=0.4.3, <0.6", default-features = false }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }
 
 # Prototype against hdmi-hal's unreleased breaking release: a pushed
 # commit of its feat/tmds-phy branch, moved by hand. Removed when hdmi-hal is released.

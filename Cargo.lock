@@ -18,17 +18,35 @@ dependencies = [
 ]
 
 [[package]]
-name = "hdmi-hal"
-version = "0.6.1"
-source = "git+https://github.com/ashlar-display/hdmi-hal?rev=35131adfe65067620e004665f6e2a88a4dbd6fb9#35131adfe65067620e004665f6e2a88a4dbd6fb9"
+name = "display-types"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2a14d4076790bab27f37a48c0e8fb29993ec8254effcb930b9dab9df29040e2"
 dependencies = [
- "display-types",
+ "bitflags",
+]
+
+[[package]]
+name = "hdmi-hal"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33358dac26d307b3111dec4109fb11f3be6470d688f686e5979879822a76c0bf"
+dependencies = [
+ "display-types 0.4.3",
 ]
 
 [[package]]
 name = "plumbob"
 version = "0.4.1"
 dependencies = [
- "display-types",
+ "display-types 0.5.1",
  "hdmi-hal",
 ]
+
+[[patch.unused]]
+name = "hdmi-hal"
+version = "0.6.1"
+source = "git+https://github.com/ashlar-display/hdmi-hal?rev=35131adfe65067620e004665f6e2a88a4dbd6fb9#35131adfe65067620e004665f6e2a88a4dbd6fb9"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c13e178df1c74a1d2949169340bc915ffe2236051c0f75acd95fbd43a7433de"
