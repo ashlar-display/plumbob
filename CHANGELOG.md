@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking changes
 
+- **Requires hdmi-hal 0.7**, its breaking release: the hdmi-hal types this crate re-exports
+  and drives are 0.7's.
 - **Requires hdmi-hal's PHY traits by link mode.** The PHY trait plumbob drives is
   `FrlPhy`, hdmi-hal's new name for `HdmiPhy`, re-exported under that name; there is no
   alias. Implementations rename the trait; `set_scrambling` is no longer part of it (it is

@@ -75,7 +75,7 @@ down through the list when the sink asks for a lower rate:
 #     fn from(e: Infallible) -> Self { match e {} }
 # }
 # fn example<S, P>(scdc: S, phy: P) -> Result<(), Error<S::Error>>
-# where S: plumbob::ScdcClient, P: plumbob::HdmiPhy<Error = Infallible> {
+# where S: plumbob::ScdcClient, P: plumbob::FrlPhy<Error = Infallible> {
 use plumbob::{FrlOutput, FrlTrainer, HdmiForumFrl, FrlPhy, TrainingConfig, TrainingOutcome};
 
 let mut trainer = FrlTrainer::new(scdc, phy);
@@ -210,7 +210,7 @@ The trace records the rates, the `TrainingConfig` in force, and an ordered
 
 ```rust
 # #[cfg(feature = "alloc")]
-# fn example<S: plumbob::ScdcClient, P: plumbob::HdmiPhy>(
+# fn example<S: plumbob::ScdcClient, P: plumbob::FrlPhy>(
 #     trainer: &mut plumbob::FrlTrainer<S, P>,
 #     rates: [plumbob::HdmiForumFrl; 3],
 #     config: plumbob::TrainingConfig,
@@ -229,7 +229,7 @@ callback; the caller decides what to keep:
 
 ```rust
 # use plumbob::TrainingEvent;
-# fn example<S: plumbob::ScdcClient, P: plumbob::HdmiPhy>(
+# fn example<S: plumbob::ScdcClient, P: plumbob::FrlPhy>(
 #     trainer: &mut plumbob::FrlTrainer<S, P>,
 #     rates: [plumbob::HdmiForumFrl; 3],
 #     config: plumbob::TrainingConfig,
