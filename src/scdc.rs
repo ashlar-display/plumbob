@@ -31,8 +31,8 @@ use crate::types::{ClearableUpdateFlags, FrlConfig, LtpRequests, SourceTestConfi
 ///
 /// - **Stopping early.** The polled methods are also where a wall-clock deadline, a
 ///   cancel flag or any other reason to stop belongs. Return one error of your own from a
-///   polled read, then let every later call through: training stops, LTS:L returns the
-///   link to TMDS, and `train` returns
+///   polled read, then let every later call through: training stops, LTS:L turns FRL off
+///   at both ends, and `train` returns
 ///   [`TrainingError::Scdc`](crate::TrainingError::Scdc) with that error and
 ///   `TmdsExit::Exited`. LTS:L's own `read_update_flags` is a single read, not a poll, but
 ///   it is the same method, so never fail a read made after a

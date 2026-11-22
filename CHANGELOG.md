@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking changes
+
+- **Requires hdmi-hal 0.7**, its breaking release: the hdmi-hal types this crate re-exports
+  and drives are 0.7's.
+- **Requires hdmi-hal's PHY traits by link mode.** The PHY trait plumbob drives is
+  `FrlPhy`, hdmi-hal's new name for `HdmiPhy`, re-exported under that name; there is no
+  alias. Implementations rename the trait; `set_scrambling` is no longer part of it (it is
+  `TmdsPhy`'s, which plumbob does not use), and `FrlPhy::Error` is bounded by
+  `core::fmt::Debug`.
+- **LTS:L turns the PHY's FRL off instead of returning it to TMDS.** It still calls
+  `set_frl_rate(HdmiForumFrl::NotSupported)`, which now means "FRL off" and enters no other
+  mode; the sink is back in TMDS as before. A caller that continues in TMDS enters it at the
+  source through hdmi-hal's `TmdsPhy`, as the TMDS bring-up (`spiritlevel`) does.
+
 ### Added
 
 - **docs.rs marks the items that need the `alloc` feature** with the `doc_cfg` badge,
@@ -20,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 
+- CI fails on `main`, and the publish workflow before anything is built, when `Cargo.toml`
+  has a `[patch]` section: `cargo package` drops it, so a release built with one would not
+  build from crates.io.
 - **The README's Rust examples compile as doctests** (`ReadmeDoctests` in `lib.rs`,
   compiled only for `cargo test`): the `ScdcClient` sketch with a hidden error type, and
   the training examples inside hidden generic functions, so they are checked against the

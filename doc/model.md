@@ -136,12 +136,12 @@ These are distinct result types representing different failure modes:
 - **`TrainingError::Scdc { error, exit }` / `TrainingError::Phy { error, exit }`** — a
   hard I/O failure from the SCDC client or PHY. Something failed at the transport level,
   unrelated to whether the link could have trained at this rate. `exit` is a `TmdsExit`:
-  LTS:L ran afterwards and both ends are in TMDS (`Exited`); it ran and a step failed
+  LTS:L ran afterwards and FRL is off at both ends (`Exited`); it ran and a step failed
   (`Failed(ExitError)`); it was turned off with `exit_to_tmds_on_error` (`Skipped`); or
   the sink had set `FLT_no_timeout`, so the link is held for the test equipment
   (`HeldUnderTest`).
   An `ExitError` has each end's first LTS:L error, `scdc` and `phy`, with `None` for an
-  end that completed its steps and is in TMDS.
+  end that completed its steps and has FRL off.
 - **`TrainingError::ExitFailed { reason, error }`** — the attempt fell back for `reason`,
   and LTS:L then failed with the `ExitError` `error`.
 - **`TrainingError::InvalidRates { index, rate }`** — the rate list cannot be trained over:
@@ -149,7 +149,7 @@ These are distinct result types representing different failure modes:
   (LTS:4 steps down). Nothing was done; no SCDC or PHY operation was performed.
 - **`TrainingError::NoRates`** — the rate list is empty: nothing to train at, and nothing
   was done. With every list either rejected or trained, a `FallbackRequired` always
-  follows training and always leaves both ends in TMDS.
+  follows training and always turns FRL off at both ends.
 
 `FrlTrainer::exit_to_tmds` runs LTS:L on its own and returns `Result<(), ExitError>`.
 

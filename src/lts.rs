@@ -5,7 +5,7 @@
 //! operation goes through the `TrainingIo` it is given.
 //!
 //! [`FrlTrainer`](crate::FrlTrainer) drives it synchronously over an
-//! [`ScdcClient`](crate::ScdcClient) and an `HdmiPhy`, without an async runtime: its I/O
+//! [`ScdcClient`](crate::ScdcClient) and an `FrlPhy`, without an async runtime: its I/O
 //! completes immediately, so `run` never waits. `plumbob-async` drives the same `run` over
 //! async I/O. Most users want `FrlTrainer`; this module is for writing such a driver.
 
@@ -26,12 +26,12 @@ use crate::warning::Trained;
 /// The SCDC and PHY operations the link training state machine performs.
 ///
 /// The SCDC methods correspond to [`ScdcClient`](crate::ScdcClient)'s and the PHY methods
-/// to `HdmiPhy`'s; see those
+/// to `FrlPhy`'s; see those
 /// traits for what each one does and what implementations must guarantee.
 // `async fn` in a public trait does not promise `Send` futures, as in `hdmi-hal-async`'s
 // plain traits. `run`'s future is `Send` whenever the implementation's futures and errors
 // are (tested in `training::tests`); code generic over the I/O gets `Send` futures from the
-// leaf traits' `Send` twins (`SendHdmiPhy`, plumbob-async's `SendScdcClient`), so this
+// leaf traits' `Send` twins (`SendFrlPhy`, plumbob-async's `SendScdcClient`), so this
 // trait needs none.
 #[allow(async_fn_in_trait)]
 pub trait TrainingIo {
@@ -80,7 +80,7 @@ pub trait TrainingIo {
 ///
 /// On an SCDC or PHY error, `run` performs LTS:L before returning, unless
 /// [`TrainingConfig::exit_to_tmds_on_error`] is off; the returned [`TrainingError`] says
-/// whether both ends reached TMDS.
+/// whether FRL is off at both ends.
 // A plain `fn` returning the machine's future, rather than an `async fn` awaiting it:
 // one async layer fewer in the future the caller holds.
 pub fn run<Io: TrainingIo, F: FnMut(TrainingEvent)>(
@@ -102,8 +102,9 @@ enum Fault<ScdcErr, PhyErr> {
 
 type Failure<Io> = Fault<<Io as TrainingIo>::ScdcError, <Io as TrainingIo>::PhyError>;
 
-/// Performs LTS:L through `io`: stops the training patterns, returns the PHY to TMDS,
-/// turns FRL off in `Config_1` and clears `FLT_update` if it is set.
+/// Performs LTS:L through `io`: stops the training patterns, turns the PHY's FRL off
+/// (entering no other mode), turns FRL off in `Config_1`, which returns the sink to TMDS,
+/// and clears `FLT_update` if it is set.
 ///
 /// This is [`FrlTrainer::exit_to_tmds`](crate::FrlTrainer::exit_to_tmds), with `record`
 /// called with `ExitedToTmds` or `ExitToTmdsFailed`. Every step is attempted even when
@@ -696,9 +697,10 @@ impl<Io: TrainingIo> Machine<'_, Io> {
         Ok(State::ConfigureRate)
     }
 
-    /// LTS:L: leave both ends in TMDS. Stops the training patterns, returns the PHY to
-    /// TMDS, turns FRL off in `Config_1` and clears `FLT_update` if it is set, so a failed
-    /// attempt never leaves the sink configured for a rate the source is not driving.
+    /// LTS:L: turn FRL off at both ends. Stops the training patterns, turns the PHY's FRL
+    /// off, turns FRL off in `Config_1` (the sink is then back in TMDS) and clears
+    /// `FLT_update` if it is set, so a failed attempt never leaves the sink configured for
+    /// a rate the source is not driving.
     ///
     /// Every step is attempted even when an earlier one fails, so a PHY error cannot keep
     /// the sink in FRL, nor an SCDC error the PHY. On failure, returns each end's first
