@@ -1,7 +1,7 @@
 # Testing Strategy
 
 plumbob's test suite is built around deterministic state machine tests. All tests run
-against scripted implementations of `ScdcClient` and `HdmiPhy`; no real hardware is
+against scripted implementations of `ScdcClient` and `FrlPhy`; no real hardware is
 required at any point.
 
 ## Test structure
@@ -76,10 +76,10 @@ kept apart, and the five distinct warnings an attempt can produce fit without `a
 - LTS:4: stepping down through the list, resetting the lanes, moving to a 3-lane rate, a
   fresh poll limit per rate, and running out of rates
 - LTS:L: the exact exit sequence, clearing a pending `FLT_update`, every timeout
-  ending in TMDS, and every step attempted when one of them fails, with the first error
+  ending in LTS:L, and every step attempted when one of them fails, with the first error
   returned
 - `TrainingError::Scdc` and `TrainingError::Phy` propagating from every SCDC and PHY
-  operation the state machine uses, with LTS:L afterwards leaving both ends in TMDS — at
+  operation the state machine uses, with LTS:L afterwards turning FRL off at both ends — at
   every call site, not only an operation's first: three scenarios (a success with a
   source test configuration, a TxFFE raise, a rate drop and a retrain; a fallback through
   LTS:L; and a `Source_Test_Update` in LTS:3 that changes the TxFFE restrictions, then
@@ -112,7 +112,7 @@ kept apart, and the five distinct warnings an attempt can produce fit without `a
   a change in LTS:3 sent at once with the levels held, before the round's requests are
   acted on; an unchanged re-read not sent again
 - The deadline pattern in architecture.md: one failed polled read in LTS:3 stops training,
-  and LTS:L, whose read is not a poll, still returns the link to TMDS; a client following
+  and LTS:L, whose read is not a poll, still turns FRL off at both ends; a client following
   the rule (no failed read after `write_frl_config(NotSupported)`) lets an attempt whose
   deadline lands on LTS:L's read end with its own result, and one that does not turns it
   into `ExitFailed`
@@ -149,14 +149,22 @@ with it, over the simulator's zero-sized error types), so a change that grows it
 the tests with the `std` feature and again with no features, so both budgets are
 checked.
 
+## Builds
+
+CI runs the tests with `std`, with `alloc` only and with no features, on stable and on the
+MSRV, and builds the `alloc`-only and bare configurations for `thumbv7em-none-eabi`, which
+has no `std`. The README's examples compile as doctests: the training examples inside
+hidden generic functions, so they are checked against the API without a sink. The
+`examples/simulate` crate runs in CI against its simulated sink and PHY.
+
 ## Coverage
 
 CI measures line coverage with `cargo-llvm-cov` over the `std` feature set. The baseline
-is stored in `.coverage-baseline`; CI fails if coverage drops more than 0.1% below it.
+is stored in `.coverage-baseline`; CI fails if coverage drops more than 0.1 percentage points below it.
 New logic without tests will likely trip this.
 
 ## Philosophy
 
-The training loop runs identically against simulated and real `ScdcClient` / `HdmiPhy`
+The training loop runs identically against simulated and real `ScdcClient` / `FrlPhy`
 implementations. A test that cannot run with a scripted `ScdcClient` does not belong in
 this repository. Hardware is never a test dependency.

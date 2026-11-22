@@ -128,10 +128,10 @@ pub enum TrainingEvent {
         /// LTS:3 after a cap lower than the polls already made.
         polls: u32,
     },
-    /// LTS:L: the sink and PHY were returned to TMDS.
+    /// LTS:L: FRL was turned off at both ends; the sink is back in TMDS.
     ExitedToTmds,
     /// LTS:L: a step failed. Every step was attempted; an end whose steps all succeeded
-    /// is in TMDS.
+    /// has FRL off (the sink is then back in TMDS).
     #[non_exhaustive]
     ExitToTmdsFailed {
         /// An SCDC step (`Config_1`, `FLT_update`) failed.

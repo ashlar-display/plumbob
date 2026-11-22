@@ -1,6 +1,6 @@
 [package]
 name = "plumbob"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2024"
 rust-version = "1.85"
 description = "FRL link training state machine for HDMI 2.1"
@@ -10,11 +10,19 @@ repository = "https://github.com/ashlar-display/plumbob"
 homepage = "https://ashlar-display.org"
 keywords = ["ashlar", "hdmi", "no-std", "frl", "link-training"]
 categories = ["hardware-support", "embedded", "no-std", "no-std::no-alloc"]
+include = ["src/**", "doc/**", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [features]
 alloc = []
 std = ["alloc"]
 
 [dependencies]
-hdmi-hal = { version = "0.6", default-features = false }
+hdmi-hal = { version = "0.7", default-features = false }
 display-types = { version = ">=0.4.3, <0.6", default-features = false }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }

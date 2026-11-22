@@ -15,6 +15,7 @@
 //! - **`std`** — implies `alloc`; no additional API surface.
 
 #![no_std]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
@@ -43,9 +44,14 @@ pub use trace::TrainingEvent;
 /// does without depending on those crates themselves.
 pub use display_types::cea861::hdmi_forum::HdmiForumFrl;
 pub use hdmi_hal::phy::{
-    EqParams, FrlOutput, HdmiPhy, LaneEqParams, LanePatterns, LtpPattern, TxFfeLevel,
+    EqParams, FrlOutput, FrlPhy, LaneEqParams, LanePatterns, LtpPattern, TxFfeLevel,
     TxFfeRestrictions,
 };
 #[cfg(feature = "alloc")]
 pub use trace::TrainingTrace;
 pub use warning::{MAX_WARNINGS, Trained, TrainingWarning};
+
+// Compiles and runs the README's examples as doctests.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+struct ReadmeDoctests;
