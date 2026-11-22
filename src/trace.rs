@@ -131,7 +131,7 @@ pub enum TrainingEvent {
     /// LTS:L: FRL was turned off at both ends; the sink is back in TMDS.
     ExitedToTmds,
     /// LTS:L: a step failed. Every step was attempted; an end whose steps all succeeded
-    /// is in TMDS.
+    /// has FRL off (the sink is then back in TMDS).
     #[non_exhaustive]
     ExitToTmdsFailed {
         /// An SCDC step (`Config_1`, `FLT_update`) failed.

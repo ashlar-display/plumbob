@@ -1811,7 +1811,7 @@ fn phy_errors_are_returned_after_lts_l() {
 
 /// The deadline pattern in architecture.md: an `ScdcClient` stops training by failing one
 /// polled read once its deadline has passed, and then lets every call through, so LTS:L,
-/// whose `read_update_flags` is not a poll, still returns the link to TMDS.
+/// whose `read_update_flags` is not a poll, still turns FRL off at both ends.
 #[test]
 fn a_one_shot_error_in_a_polled_read_stops_training_and_exits_to_tmds() {
     // LTS:3 polls `Update_0` 50 times before the sink posts requests; the 20th
@@ -1922,7 +1922,7 @@ fn a_deadline_on_lts_l_s_read_is_not_failed_by_a_client_that_follows_the_rule() 
         (result, client, phy)
     };
 
-    // With the rule, the attempt ends as it would have, the link back in TMDS.
+    // With the rule, the attempt ends as it would have, with FRL off at both ends.
     let (result, client, phy) = run(true);
     assert!(!client.tripped);
     assert!(

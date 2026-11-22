@@ -125,7 +125,8 @@ pub enum TrainingError<ScdcErr, PhyErr> {
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TmdsExit<ScdcErr, PhyErr> {
-    /// LTS:L ran and every step succeeded: the sink and PHY are in TMDS.
+    /// LTS:L ran and every step succeeded: FRL is off at both ends, and the sink is back
+    /// in TMDS.
     Exited,
     /// LTS:L was not run, because [`TrainingConfig::exit_to_tmds_on_error`] is off. Both
     /// ends are as the error left them.
@@ -142,8 +143,8 @@ pub enum TmdsExit<ScdcErr, PhyErr> {
 /// LTS:L failed: the first error of each end whose steps failed.
 ///
 /// LTS:L attempts every step even when one fails, so an end with `None` completed its
-/// steps and is in TMDS. At least one end has an error. Returned by
-/// [`FrlTrainer::exit_to_tmds`] and [`lts::exit_to_tmds`], and carried by
+/// steps and has FRL off (the sink is then back in TMDS). At least one end has an error.
+/// Returned by [`FrlTrainer::exit_to_tmds`] and [`lts::exit_to_tmds`], and carried by
 /// [`TmdsExit::Failed`] and [`TrainingError::ExitFailed`].
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

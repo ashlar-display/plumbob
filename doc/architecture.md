@@ -111,8 +111,8 @@ before any SCDC or PHY operation — the standard decides this, not the caller, 
 running a list LTS:4 cannot follow would invent behaviour. An empty list has nothing to
 train at and is rejected the same way, as `TrainingError::NoRates`; a caller with no FRL
 rate to try (a sink without FRL) does not train, and calls `exit_to_tmds` if an earlier
-FRL link must come down. So every `FallbackRequired` follows training, and leaves both
-ends in TMDS. Which valid rates to try remains the caller's choice. The sequence follows the link training states (LTS) of the
+FRL link must come down. So every `FallbackRequired` follows training, and turns FRL off
+at both ends. Which valid rates to try remains the caller's choice. The sequence follows the link training states (LTS) of the
 HDMI 2.1 procedure as implemented by open-source HDMI 2.1 transmitters: the
 AMD/Xilinx `v_hdmitx1` driver (`xv_hdmitx1_frl.c`) and the Intel `xe` FRL series
 (`intel_hdmi_train_lanes`). LTS:1 (reading the sink's EDID and SCDC capability) is the
@@ -289,7 +289,7 @@ LTS:L also follows an SCDC or PHY error, wherever it happens: the standard's exi
 failed attempt applies whatever made it fail. The error is returned as
 `TrainingError::Scdc` or `TrainingError::Phy`, with `exit: TmdsExit` saying what LTS:L
 did — `Exited`, or `Failed` with an `ExitError`: the first error of each end whose steps
-failed (an end without one is in TMDS). If LTS:L fails after a fallback, `train` returns
+failed (an end without one has FRL off). If LTS:L fails after a fallback, `train` returns
 `TrainingError::ExitFailed` with the fallback reason and the `ExitError` instead of
 `FallbackRequired`. The trace records `ExitedToTmds` or `ExitToTmdsFailed`.
 
@@ -498,7 +498,7 @@ impl<C: ScdcClient, P: FrlPhy> FrlTrainer<C, P> {
     pub fn train_with_events<F: FnMut(TrainingEvent)>(&mut self, rates: &[HdmiForumFrl],
         config: &TrainingConfig, record: &mut F)
         -> Result<Trained, TrainingError<C::Error, P::Error>>;
-    /// LTS:L on demand: take the link down to TMDS.
+    /// LTS:L on demand: turn FRL off at both ends; the sink is back in TMDS.
     pub fn exit_to_tmds(&mut self) -> Result<(), ExitError<C::Error, P::Error>>;
     // `new` and `into_parts` construct the trainer and recover the client and PHY;
     // `scdc`, `scdc_mut`, `phy` and `phy_mut` reach them in between (for example to start
@@ -529,7 +529,7 @@ pub enum TmdsExit<ScdcErr, PhyErr> {
     Failed(ExitError<ScdcErr, PhyErr>),
 }
 
-/// LTS:L failed: each end's first error; an end with `None` is in TMDS.
+/// LTS:L failed: each end's first error; an end with `None` has FRL off.
 #[non_exhaustive]
 pub struct ExitError<ScdcErr, PhyErr> { pub scdc: Option<ScdcErr>, pub phy: Option<PhyErr> }
 ```
@@ -594,7 +594,7 @@ pub enum TrainingEvent {
     FrlStartTimeout { polls: u32 },
     /// FLT_no_timeout: the poll cap ran out (LTS:2, LTS:3 or LTS:P); the link is held.
     NoTimeoutCapReached { polls: u32 },
-    /// LTS:L: the sink was returned to TMDS.
+    /// LTS:L: FRL was turned off at both ends; the sink is back in TMDS.
     ExitedToTmds,
     /// LTS:L: a step failed on the SCDC side, the PHY side, or both.
     ExitToTmdsFailed { scdc: bool, phy: bool },

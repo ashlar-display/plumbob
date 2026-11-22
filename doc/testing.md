@@ -76,10 +76,10 @@ kept apart, and the five distinct warnings an attempt can produce fit without `a
 - LTS:4: stepping down through the list, resetting the lanes, moving to a 3-lane rate, a
   fresh poll limit per rate, and running out of rates
 - LTS:L: the exact exit sequence, clearing a pending `FLT_update`, every timeout
-  ending in TMDS, and every step attempted when one of them fails, with the first error
+  ending in LTS:L, and every step attempted when one of them fails, with the first error
   returned
 - `TrainingError::Scdc` and `TrainingError::Phy` propagating from every SCDC and PHY
-  operation the state machine uses, with LTS:L afterwards leaving both ends in TMDS — at
+  operation the state machine uses, with LTS:L afterwards turning FRL off at both ends — at
   every call site, not only an operation's first: three scenarios (a success with a
   source test configuration, a TxFFE raise, a rate drop and a retrain; a fallback through
   LTS:L; and a `Source_Test_Update` in LTS:3 that changes the TxFFE restrictions, then
@@ -112,7 +112,7 @@ kept apart, and the five distinct warnings an attempt can produce fit without `a
   a change in LTS:3 sent at once with the levels held, before the round's requests are
   acted on; an unchanged re-read not sent again
 - The deadline pattern in architecture.md: one failed polled read in LTS:3 stops training,
-  and LTS:L, whose read is not a poll, still returns the link to TMDS; a client following
+  and LTS:L, whose read is not a poll, still turns FRL off at both ends; a client following
   the rule (no failed read after `write_frl_config(NotSupported)`) lets an attempt whose
   deadline lands on LTS:L's read end with its own result, and one that does not turns it
   into `ExitFailed`

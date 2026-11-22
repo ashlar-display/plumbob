@@ -80,7 +80,7 @@ pub trait TrainingIo {
 ///
 /// On an SCDC or PHY error, `run` performs LTS:L before returning, unless
 /// [`TrainingConfig::exit_to_tmds_on_error`] is off; the returned [`TrainingError`] says
-/// whether both ends reached TMDS.
+/// whether FRL is off at both ends.
 // A plain `fn` returning the machine's future, rather than an `async fn` awaiting it:
 // one async layer fewer in the future the caller holds.
 pub fn run<Io: TrainingIo, F: FnMut(TrainingEvent)>(
@@ -697,9 +697,10 @@ impl<Io: TrainingIo> Machine<'_, Io> {
         Ok(State::ConfigureRate)
     }
 
-    /// LTS:L: leave both ends in TMDS. Stops the training patterns, returns the PHY to
-    /// TMDS, turns FRL off in `Config_1` and clears `FLT_update` if it is set, so a failed
-    /// attempt never leaves the sink configured for a rate the source is not driving.
+    /// LTS:L: turn FRL off at both ends. Stops the training patterns, turns the PHY's FRL
+    /// off, turns FRL off in `Config_1` (the sink is then back in TMDS) and clears
+    /// `FLT_update` if it is set, so a failed attempt never leaves the sink configured for
+    /// a rate the source is not driving.
     ///
     /// Every step is attempted even when an earlier one fails, so a PHY error cannot keep
     /// the sink in FRL, nor an SCDC error the PHY. On failure, returns each end's first
